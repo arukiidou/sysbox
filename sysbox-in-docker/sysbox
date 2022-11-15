@@ -63,8 +63,8 @@ function load_required_modules() {
   # Sysbox requires 'configfs' module to ensure proper operation of containerized
   # apps requiring access to kernel's config file (e.g. kubeadm).
   if ! modprobe configfs &> /dev/null; then
-      echo "Could not load configfs kernel module. Exiting ..."
-      return 1
+      echo "Could not load configfs kernel module. but ignored ..."
+      return 0
   fi
 
   return 0
@@ -103,8 +103,11 @@ function check_distro() {
 function userns_setup() {
 
   local distro=$1
+  local kernel_type="$(uname -r)"
 
-  if [[ "${distro}" == "ubuntu" ]] ||
+  if [[ "${kernel_type}" == "5.15.68.1-microsoft-standard-WSL2" ]]; then
+      echo "wsl2-skip"
+  elif [[ "${distro}" == "ubuntu" ]] ||
      [[ "${distro}" == "debian" ]]; then
       echo "1" > /proc/sys/kernel/unprivileged_userns_clone
   fi
